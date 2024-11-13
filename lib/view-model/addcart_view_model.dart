@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/model/cart_model.dart';
 import 'package:foodies/services/api_cart_services.dart';
+import 'package:http/http.dart'
+    as http; // Import the http package for API requests
+import 'dart:convert'; // Import to parse the JSON response
 
 class CartViewModel extends ChangeNotifier {
   final CartService _cartService = CartService();
@@ -26,7 +29,6 @@ class CartViewModel extends ChangeNotifier {
 
     try {
       // Call the API function to add item to the cart
-
       final result =
           await _cartService.addToCart(itemId: itemId, userId: userId);
 
@@ -46,13 +48,17 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchCartItems() async {
+  // Method to fetch cart items from the API
+  Future<void> fetchCartItems(int userId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      _cartItems = await _cartService.fetchCartItems();
+      _cartItems = await _cartService.fetchCartItems(userId);
     } catch (error) {
+      _cartItems = [];
+      notifyListeners();
+
       print("Error fetching cart items: $error");
     } finally {
       _isLoading = false;
@@ -60,12 +66,13 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> incrementItemQuantity(String itemId,String userId) async {
+  // Method to increment item quantity in the cart
+  Future<void> incrementItemQuantity(String itemId, String userId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      if (await _cartService.incrementItemQuantity(itemId,  userId)) {
+      if (await _cartService.incrementItemQuantity(itemId, userId)) {
         _updateItemQuantity(itemId, 1);
       } else {
         throw Exception("Failed to increment item");
@@ -78,7 +85,8 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> decrementItemQuantity(String itemId,String userId) async {
+  // Method to decrement item quantity in the cart
+  Future<void> decrementItemQuantity(String itemId, String userId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -96,6 +104,7 @@ class CartViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Helper method to update the quantity of an item in the cart
   void _updateItemQuantity(String itemId, int change) {
     for (var item in _cartItems) {
       if (item.itemid == itemId) {
@@ -103,6 +112,33 @@ class CartViewModel extends ChangeNotifier {
         notifyListeners();
         break;
       }
+    }
+  }
+
+  // Method to remove item from the cart using an API call
+  Future<void> removeItemFromCart(int id) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final String apiUrl =
+          "https://fooddelivery-e7mz.onrender.com/deletecart/$id";
+      final response = await http.delete(Uri.parse(apiUrl));
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        // If the item is successfully deleted, remove it from the list
+        _cartItems.removeWhere((item) => item.id == id);
+        print(_cartItems);
+        print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
+        _message = "Item removed from cart successfully!";
+      } else {
+        _message = 'Failed to delete item: ${response.statusCode}';
+      }
+    } catch (e) {
+      _message = 'Error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

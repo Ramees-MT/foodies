@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/view-model/addcart_view_model.dart';
-
+import 'package:foodies/view-model/user_view_model.dart';
+import 'package:foodies/view/addressscreen.dart';
+import 'package:foodies/view/checkoutscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:foodies/model/cart_model.dart'; // Ensure this path is correct
 
 class MyCartScreen extends StatefulWidget {
+  const MyCartScreen({
+    super.key,
+  });
   @override
   _MyCartScreenState createState() => _MyCartScreenState();
 }
@@ -13,8 +18,10 @@ class _MyCartScreenState extends State<MyCartScreen> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<CartViewModel>(context, listen: false).fetchCartItems();
+      final id = Provider.of<Userviewmodel>(context, listen: false).logId;
+      Provider.of<CartViewModel>(context, listen: false).fetchCartItems(id!);
     });
   }
 
@@ -55,13 +62,19 @@ class _MyCartScreenState extends State<MyCartScreen> {
                         item.itemimage!,
                         () async {
                           if (quantity > 1) {
-                            await cartProvider.decrementItemQuantity(item.itemid!,item.userid!);
+                            await cartProvider.decrementItemQuantity(
+                                item.itemid!, item.userid!);
                           } else {
                             // Optionally, show a dialog to confirm removal if quantity is 1
                           }
                         },
                         () async {
-                          await cartProvider.incrementItemQuantity(item.itemid!,item.userid!);
+                          await cartProvider.incrementItemQuantity(
+                              item.itemid!, item.userid!);
+                        },
+                        () async {
+                          // Handle delete action
+                          await cartProvider.removeItemFromCart(item.id!);
                         },
                       );
                     },
@@ -73,8 +86,14 @@ class _MyCartScreenState extends State<MyCartScreen> {
     );
   }
 
-  Widget _buildCartContainer(String title, String price, int quantity,
-      String imagePath, VoidCallback onDecrement, VoidCallback onIncrement) {
+  Widget _buildCartContainer(
+      String title,
+      String price,
+      int quantity,
+      String imagePath,
+      VoidCallback onDecrement,
+      VoidCallback onIncrement,
+      VoidCallback onDelete) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: EdgeInsets.all(16),
@@ -132,6 +151,10 @@ class _MyCartScreenState extends State<MyCartScreen> {
                 icon: Icon(Icons.add_circle_outline, color: Colors.white),
                 onPressed: onIncrement,
               ),
+              IconButton(
+                icon: Icon(Icons.delete_outline, color: Colors.red),
+                onPressed: onDelete,
+              ),
             ],
           ),
         ],
@@ -160,15 +183,20 @@ class _MyCartScreenState extends State<MyCartScreen> {
             children: [
               Text(
                 "Total",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               Text(
                 "\$${totalPrice.toStringAsFixed(2)}",
-                style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
               ),
             ],
           ),
           SizedBox(height: 20),
+
+          SizedBox(height: 20),
+          // Update the "Checkout" button's onPressed method
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -178,11 +206,31 @@ class _MyCartScreenState extends State<MyCartScreen> {
               ),
             ),
             onPressed: () {
-              // Handle checkout action
+              // Access the instance of CartViewModel through the provider
+              final cartProvider =
+                  Provider.of<CartViewModel>(context, listen: false);
+
+              // Calculate the total amount from cartProvider.cartItems
+              final totalAmount = cartProvider.cartItems.fold(
+                0.0,
+                (sum, item) {
+                  double price = double.tryParse(item.itemprice ?? '0') ?? 0.0;
+                  int quantity = item.quantity ?? 0;
+                  return sum + (price * quantity);
+                },
+              );
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CheckoutScreen(totalAmount: totalAmount),
+                ),
+              );
             },
             child: Text(
               "Checkout",
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18, color: Colors.white),
             ),
           ),
         ],

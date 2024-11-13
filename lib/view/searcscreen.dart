@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:foodies/utils/constants.dart';
+import 'package:foodies/model/products_model.dart';
+import 'package:foodies/view-model/search_view_model.dart';
+import 'package:foodies/view/product_detailspage.dart';
+import 'package:provider/provider.dart';
 
 class FoodSearchPage extends StatefulWidget {
   @override
@@ -8,90 +11,135 @@ class FoodSearchPage extends StatefulWidget {
 
 class _FoodSearchPageState extends State<FoodSearchPage> {
   final TextEditingController _searchController = TextEditingController();
-
-  // Sample list of food items
-  final List<String> _allFoods = [
-    'Pizza',
-    'Burger',
-    'Pasta',
-    'Sushi',
-    'Salad',
-    'Ice Cream',
-    'Tacos',
-    'Steak',
-    'Vegetable Stir Fry',
-    'Dumplings',
-  ];
-
-  List<String> _filteredFoods = [];
-
-  void _filterFoodItems(String query) {
-    if (query.isNotEmpty) {
-      setState(() {
-        _filteredFoods = _allFoods
-            .where((food) => food.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      });
-    } else {
-      setState(() {
-        _filteredFoods
-            .clear(); // Clear the filtered list if the search query is empty
-      });
-    }
-  }
+  Product? product;
 
   @override
   void initState() {
     super.initState();
-    _filteredFoods = _allFoods; // Initially show all food items
+  }
+
+  void _search() {
+    final viewModel = Provider.of<FoodViewModel>(context, listen: false);
+    viewModel.fetchFoods(_searchController.text);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kbackgroundcolor, // Set the background color
       appBar: AppBar(
-        title: Text(
-          'Food Search',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text('Search Foods', style: TextStyle(color: Colors.green)),
         backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TextField(
               controller: _searchController,
-              onChanged: _filterFoodItems,
+              style: TextStyle(color: Colors.green),
+              onSubmitted: (_) => _search(),
               decoration: InputDecoration(
-                labelText: 'Search Food',
-                hintText: 'Enter food name...',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+                hintText: 'Enter food name',
+                hintStyle: TextStyle(color: Colors.grey),
+                filled: true,
+                fillColor: Colors.grey[800],
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.search, color: Colors.green),
+                  onPressed: _search,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _filteredFoods.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
+          ),
+        ),
+      ),
+      backgroundColor: Colors.black,
+      body: Consumer<FoodViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.green),
+            );
+          } else if (viewModel.errorMessage.isNotEmpty) {
+            return Center(
+              child: Text(
+                viewModel.errorMessage,
+                style: TextStyle(color: Colors.green),
+              ),
+            );
+          } else if (viewModel.foods.isEmpty) {
+            return Center(
+              child: Text(
+                'No results found',
+                style: TextStyle(color: Colors.green),
+              ),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: viewModel.foods.length,
+              itemBuilder: (context, index) {
+                final product = viewModel.foods[index];
+                return Card(
+                  color: Colors.grey[900],
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(8.0),
+                    leading: product.itemimage != null &&
+                            product.itemimage!.isNotEmpty
+                        ? Image.network(
+                            product.itemimage!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          )
+                        : Icon(Icons.fastfood, size: 60, color: Colors.green),
                     title: Text(
-                      _filteredFoods[index],
+                      product.itemname ?? 'Unknown',
                       style: TextStyle(
-                          color: Colors.white), // Set text color to green
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (product.itemId != null)
+                          Text(
+                            'ID: ${product.itemId}',
+                            style: TextStyle(color: Colors.grey[500]),
+                          ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Price: ${product.itemprice ?? 'N/A'}',
+                          style: TextStyle(color: Colors.grey[500]),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          product.itemdescription ??
+                              'No description available',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.grey[400]),
+                        ),
+                      ],
                     ),
                     onTap: () {
-                      // Add your logic for food item selection if needed
-                      print('${_filteredFoods[index]} selected');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetailsPage(product: product),
+                        ),
+                      );
                     },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

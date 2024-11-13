@@ -8,8 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart'; // Make sure to imp
 
 class ProductDetailsPage extends StatelessWidget {
   final Product product;
-
-  const ProductDetailsPage({super.key, required this.product});
+  final String? productName;
+  const ProductDetailsPage(
+      {super.key, required this.product, this.productName});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +106,6 @@ class ProductDetailsPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     // Create a Cart object from the Product
-
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
                     String? log_id = await prefs.getString('isLoggedIn');
@@ -149,6 +149,8 @@ class ProductDetailsPage extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 16), // Space between the buttons
+              // 'Order' button
             ],
           ),
         ),

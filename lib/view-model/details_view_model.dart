@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodies/model/products_model.dart';
 import 'package:foodies/services/api_home_services.dart';
 import 'package:foodies/services/apiservices.dart';
-import 'package:foodies/services/models/api_details_services.dart';
+import 'package:foodies/services/api_details_services.dart';
 
 class Detailsviewmodel extends ChangeNotifier {
   final DetailsApiService _apiService = DetailsApiService();

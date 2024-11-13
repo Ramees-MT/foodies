@@ -42,9 +42,12 @@ class CartService {
     }
   }
 
-  Future<List<Cart>> fetchCartItems() async {
+  Future<List<Cart>> fetchCartItems(int userId) async {
     // Make sure baseurl is defined correctly and ends with a slash
-    final apiUrl = Uri.parse("$baseurl/viewcart/"); // Replace with your API URL
+    final apiUrl = Uri.parse(
+        "$baseurl/viewsinglecart/$userId"); // Replace with your API URL
+
+    print(userId);
 
     try {
       final response = await http.get(apiUrl); // No need to parse again
@@ -52,11 +55,11 @@ class CartService {
       if (response.statusCode == 200) {
         print(response.body);
         // Decode the JSON response
-        
-        final  jsonData = json.decode(response.body);
+
+        final jsonData = json.decode(response.body);
 
         // Convert the JSON data to a list of Cart objects
-        return jsonData['data'].map<Cart>((item) => Cart.fromJson(item)).toList();
+        return jsonData.map<Cart>((item) => Cart.fromJson(item)).toList();
       } else {
         throw Exception(
             'Failed to load cart items. Status code: ${response.statusCode}');
@@ -66,10 +69,8 @@ class CartService {
       throw Exception('Failed to load cart items: $e');
     }
   }
-  
-  
 
- Future<bool> incrementItemQuantity(String itemId, String userId) async {
+  Future<bool> incrementItemQuantity(String itemId, String userId) async {
     try {
       final response = await http.post(
         Uri.parse("$baseurl/increment_quantity/"),

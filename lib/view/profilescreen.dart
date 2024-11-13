@@ -1,154 +1,194 @@
 import 'package:flutter/material.dart';
-import 'package:foodies/utils/constants.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:foodies/view/addressscreen.dart';
+import 'package:foodies/view/editaddressscreen.dart';
+import 'package:provider/provider.dart';
+import 'package:foodies/view-model/address_view_model.dart';
+import 'package:foodies/model/address_model.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final int userId;
+
+  ProfileScreen({required this.userId});
+
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  File? _image; // To store the selected image
-  final ImagePicker _picker = ImagePicker();
-
-  // Method to pick image from gallery
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<AddressViewModel>(context, listen: false)
+          .fetchAddresses(widget.userId);
+    });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kbackgroundcolor,
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.black,
         title: Text(
-          'Profile',
-          style: TextStyle(color: Colors.white),
+          'Your Addresses',
+          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: kbuttoncolor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            // Profile Picture with update functionality
-            Center(
-              child: Stack(
-                children: [
-                  // Profile picture container
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.grey.shade300,
-                    backgroundImage: _image != null ? FileImage(_image!) : null,
-                    child: _image == null
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
-                  // Edit button to update profile pic
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: InkWell(
-                      onTap: _pickImage,
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
+      body: Consumer<AddressViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: Colors.green,
+              ),
+            );
+          }
+
+          if (viewModel.errorMessage != null) {
+            return Center(
+              child: Text(
+                viewModel.errorMessage!,
+                style: TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            );
+          }
+
+          if (viewModel.addresses.isEmpty) {
+            return Center(
+              child: Text(
+                'No addresses found',
+                style: TextStyle(color: Colors.green, fontSize: 16),
+              ),
+            );
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: viewModel.addresses.length,
+                  itemBuilder: (context, index) {
+                    Address address = viewModel.addresses[index];
+                    bool isSelected = viewModel.selectedaddress == address;
+
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<AddressViewModel>().setAddress(address: address);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: Card(
+                          color: isSelected ? Colors.green : Colors.grey[900],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            side: BorderSide(color: Colors.green),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      address.name ?? 'No Name',
+                                      style: TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    if (isSelected)
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.white,
+                                      ),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Street: ${address.street ?? ''}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  'City: ${address.city ?? ''}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  'State: ${address.state ?? ''}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  'Country: ${address.country ?? ''}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  'Postal Code: ${address.postalCode ?? ''}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit, color: Colors.blue),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EditAddressScreen(
+                                              address: address,
+                                              userId: widget.userId,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () {
+                                        Provider.of<AddressViewModel>(context,
+                                                listen: false)
+                                            .deleteAddress(address.id!, context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // User Information
-            _buildUserInfo('Full Name', 'John Doe'),
-            _buildUserInfo('Email', 'john.doe@example.com'),
-            _buildUserInfo('Phone Number', '+1 234 567 890'),
-
-            SizedBox(height: 30),
-
-            // Edit Profile Button
-            ElevatedButton.icon(
-              onPressed: () {
-                // Handle Edit Profile action
-              },
-              icon: Icon(
-                Icons.edit,
-                color: Colors.white,
-              ),
-              label: Text(
-                'Edit Profile',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                    );
+                  },
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Navigate to AddressScreen to add a new address
+                    final Address? newAddress = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Addressscreen()),
+                    );
 
-  // Helper method to create user info display
-  Widget _buildUserInfo(String title, String info) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        children: [
-          Icon(
-            Icons.info,
-            color: Colors.green,
-          ),
-          SizedBox(width: 10),
-          Text(
-            title,
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
-          ),
-          SizedBox(width: 20),
-          Expanded(
-            child: Text(
-              info,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
+                    // Optionally, you can do something with the new address here
+                  },
+                  child: Text("Add Address"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
               ),
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
