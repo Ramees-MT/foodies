@@ -2,66 +2,166 @@ import 'package:flutter/material.dart';
 import 'package:foodies/view-model/order_view_model.dart';
 import 'package:provider/provider.dart';
 
+class OrderDetailsPage extends StatefulWidget {
+  final int userId;
 
-class OrderDetailsPage extends StatelessWidget {
-  final int orderId;
+  OrderDetailsPage({required this.userId});
 
-  OrderDetailsPage({required this.orderId});
+  @override
+  State<OrderDetailsPage> createState() => _OrderDetailsPageState();
+}
+
+class _OrderDetailsPageState extends State<OrderDetailsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PlaceOrderViewModel>(context, listen: false)
+          .viewOrder(widget.userId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => PlaceOrderViewModel()..loadOrder(orderId),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Order Details'),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(
+          'Order Details',
+          style: TextStyle(color: Colors.greenAccent),
         ),
-        body: Consumer<PlaceOrderViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return Center(child: CircularProgressIndicator());
-            }
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.greenAccent),
+        elevation: 0,
+      ),
+      body: Consumer<PlaceOrderViewModel>(
+        builder: (context, viewModel, child) {
+          if (viewModel.isLoading) {
+            return Center(
+                child: CircularProgressIndicator(color: Colors.greenAccent));
+          }
 
-            if (viewModel.errorMessage != null) {
-              return Center(child: Text(viewModel.errorMessage!));
-            }
-
-            final order = viewModel.orderdata;
-
-            if (order == null) {
-              // Check if order data is null and display a message if it is
-              return Center(child: Text('Order data not available'));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Order ID: ${order['id']}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text('Customer: ${order['customerName']}'),
-                  SizedBox(height: 8),
-                  Text('Total Price: \$${order['totalPrice']}'),
-                  SizedBox(height: 8),
-                  Text('Items:'),
-                  SizedBox(height: 8),
-                  // Safely access order['items'] and check if it’s a list before iterating
-                  ...(order['items'] as List?)?.map((item) {
-                    return ListTile(
-                      title: Text(item['name']),
-                      subtitle: Text('Quantity: ${item['quantity']}'),
-                      trailing: Text('\$${item['price']}'),
-                    );
-                  }).toList() ?? [Text('No items available')],
-                ],
+          if (viewModel.errorMessage != null) {
+            return Center(
+              child: Text(
+                viewModel.errorMessage!,
+                style: TextStyle(color: Colors.greenAccent, fontSize: 18),
               ),
             );
-          },
-        ),
+          }
+
+          final orderData = viewModel.orderData;
+
+          if (orderData == null || orderData['data'] == null) {
+            return Center(
+              child: Text(
+                'No order data available',
+                style: TextStyle(color: Colors.greenAccent, fontSize: 18),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: orderData['data'].length,
+            itemBuilder: (context, index) {
+              final item = orderData['data'][index];
+
+              return Card(
+                color: Colors.grey[900],
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['itemname'] ?? 'Unknown Item',
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Divider(color: Colors.greenAccent.withOpacity(0.5)),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.shopping_cart, color: Colors.greenAccent),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Item ID: ${item['itemid'] ?? 'N/A'}',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.person, color: Colors.greenAccent),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'User ID: ${item['userid'] ?? 'N/A'}',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.format_list_numbered,
+                              color: Colors.greenAccent),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Quantity: ${item['quantity'] ?? 'N/A'}',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.attach_money, color: Colors.greenAccent),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Price: \$${item['itemprice'] ?? 'N/A'}',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Date: ${item['date'] ?? 'N/A'}',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                      SizedBox(height: 12),
+                      item['itemimage'] != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                item['itemimage'],
+                                height: 100,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:foodies/model/address_model.dart';
 import 'package:foodies/view-model/address_view_model.dart';
+import 'package:foodies/view-model/checkout_view_model.dart';
 import 'package:foodies/view-model/order_view_model.dart';
+import 'package:foodies/view/addressdetailsscreen.dart';
 import 'package:foodies/view/addressscreen.dart';
 import 'package:foodies/view/bottomnavscreen.dart';
 import 'package:foodies/view/homescreen.dart';
 import 'package:foodies/view/profilescreen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upi_india/upi_app.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final double totalAmount;
@@ -143,7 +147,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
+                      builder: (context) => Addressdetails(
                             userId: int.tryParse(log_id!)!,
                           )),
                 );
@@ -172,17 +176,45 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               title: "Credit Card",
               icon: Icons.credit_card,
               method: "Credit Card",
+              action: () {},
             ),
             _buildPaymentOption(
               title: "Wallet",
               icon: Icons.account_balance_wallet,
               method: "Wallet",
+              action: () {},
             ),
             _buildPaymentOption(
-              title: "UPI",
-              icon: Icons.phone_android,
+              title: "Gpay",
+              image: 'assets/images/gpay.jpg',
               method: "UPI",
+              action: () async {
+                await context
+                    .read<Checkoutviewmodel>()
+                    .initiateTransaction(UpiApp.googlePay);
+              },
             ),
+             _buildPaymentOption(
+              title: "Phonepe",
+              image:'assets/images/phonepe.jpg' ,
+              method: "UPI",
+              action: () async {
+                await context
+                    .read<Checkoutviewmodel>()
+                    .initiateTransaction(UpiApp.phonePe);
+              },
+            ),
+             _buildPaymentOption(
+              title: "paytm",
+              image:'assets/images/paytm.png' ,
+              method: "UPI",
+              action: () async {
+                await context
+                    .read<Checkoutviewmodel>()
+                    .initiateTransaction(UpiApp.paytm);
+              },
+            ),
+
             Spacer(),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -252,8 +284,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildPaymentOption({
     required String title,
-    required IconData icon,
+     IconData? icon,
+    String? image,
     required String method,
+    required VoidCallback action,
   }) {
     return ListTile(
       leading: Icon(icon, color: Colors.green),
@@ -265,6 +299,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         color: _selectedPaymentMethod == method ? Colors.green : Colors.white,
       ),
       onTap: () {
+        action();
         setState(() {
           _selectedPaymentMethod = method;
         });

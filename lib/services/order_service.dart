@@ -35,8 +35,8 @@ class OrderService {
     }
   }
 
-  Future<Map<String, dynamic>> fetchOrder(int orderId) async {
-    final response = await http.get(Uri.parse('$baseurl/vieworder/$orderId'));
+  Future<Map<String, dynamic>> fetchOrder(int userId) async {
+    final response = await http.get(Uri.parse('$baseurl/vieworder/$userId'));
 
     if (response.statusCode == 200) {
       return json.decode(response.body);

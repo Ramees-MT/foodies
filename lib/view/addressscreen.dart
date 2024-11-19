@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodies/model/address_model.dart';
 import 'package:foodies/view-model/address_view_model.dart';
-import 'package:foodies/view/profilescreen.dart';
+import 'package:foodies/view/addressdetailsscreen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,7 +82,7 @@ class Addressscreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      ProfileScreen(userId: int.tryParse(logId!)!,),
+                                      Addressdetails(userId: int.tryParse(logId!)!,),
                                 ));
                           }
                         },

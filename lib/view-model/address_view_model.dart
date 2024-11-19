@@ -89,6 +89,7 @@ class AddressViewModel extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
+        await fetchAddresses(userId);
         _errorMessage = null;
         notifyListeners();
       } else {

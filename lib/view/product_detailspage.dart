@@ -109,6 +109,8 @@ class ProductDetailsPage extends StatelessWidget {
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
                     String? log_id = await prefs.getString('isLoggedIn');
+                    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
                     print(log_id);
                     // Access the CartProvider and add the product
                     Provider.of<CartViewModel>(context, listen: false)

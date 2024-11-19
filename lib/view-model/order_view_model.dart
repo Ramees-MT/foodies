@@ -6,10 +6,11 @@ class PlaceOrderViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
   String? successMessage;
-  Map<String, dynamic>? orderdata; // Define 'orderdata' here
+  Map<String, dynamic>? orderData; // Stores the order data
 
   final OrderService _apiService = OrderService();
 
+  // Method to place an order
   Future<void> placeOrder(String itemId) async {
     isLoading = true;
     errorMessage = null;
@@ -25,7 +26,7 @@ class PlaceOrderViewModel extends ChangeNotifier {
         throw Exception("User not logged in");
       }
 
-      // Call the API
+      // Call the API to place the order
       final response = await _apiService.placeOrder(logId, itemId);
       print(response);
 
@@ -43,24 +44,30 @@ class PlaceOrderViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> loadOrder(int orderId) async {
+  // Method to view a specific order
+  Future<void> viewOrder(int userId) async {
     isLoading = true;
+    errorMessage = null;
     notifyListeners();
 
     try {
-      orderdata = await _apiService.fetchOrder(orderId);
-      errorMessage = null;
+      // Fetch the order data
+      final response = await _apiService.fetchOrder(userId);
+      print('Order response: $response'); // Debug: check response structure
+      
+      if (response != null && response.containsKey('data')) {
+        orderData = response;
+        errorMessage = null;
+      } else {
+        errorMessage = 'No order data available.';
+        orderData = null;
+      }
     } catch (e) {
       errorMessage = 'Failed to load order: ${e.toString()}';
+      orderData = null;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    notifyListeners();
-  }
-
-  void clearMessages() {
-    errorMessage = null;
-    successMessage = null;
-    notifyListeners();
   }
 }

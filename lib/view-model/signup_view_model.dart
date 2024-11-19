@@ -4,7 +4,6 @@ import 'package:foodies/routes/route_names.dart';
 import 'package:foodies/services/apiservices.dart';
 import 'package:foodies/services/firebase_authservices.dart';
 
-
 class Signupviewmodel extends ChangeNotifier {
   final _firebaseauthservice = Firebaseauthservices();
 
@@ -32,13 +31,11 @@ class Signupviewmodel extends ChangeNotifier {
       setLoading(false); // Stop loading
     }
   }
+
   Future<void> register(
-      {
-      required String phone,
-
+      {required String phone,
       required String email,
-
-        required String username,
+      required String username,
       required String password,
       required BuildContext context}) async {
     setLoading(true);
@@ -48,26 +45,20 @@ class Signupviewmodel extends ChangeNotifier {
         email: email,
         phone: phone,
         password: password,
-       
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Register success'),
-        ));
-      Navigator.pushNamed(context, AppRoutes.bottomnavpage);
-
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Register success'),
+      ));
+      Navigator.pushNamed(context, AppRoutes.signinPage);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
         ),
-        
       );
-
     } finally {
       setLoading(false); // Stop loading
     }
   }
-  
 }

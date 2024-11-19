@@ -53,7 +53,7 @@ class _MainScreenState extends State<MainScreen> {
       Homescreen(),
       MyCartScreen(),
       FoodSearchPage(),
-      ProfileScreen(userId: logId ?? 0), // Default to 0 if logId is null
+      ProfilePage(), // Default to 0 if logId is null
     ];
 
     return Scaffold(

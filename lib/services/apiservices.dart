@@ -72,8 +72,9 @@ class ApiService {
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString(
-          'isLoggedIn',decodeddata['data']['login_id'].toString()
-        );
+            'isLoggedIn', decodeddata['data']['login_id'].toString());
+        print(
+            'xdfdxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
       } else {
         String message = jsonDecode(response.body)['message'];
 
