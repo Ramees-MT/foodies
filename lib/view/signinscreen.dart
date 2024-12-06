@@ -5,7 +5,7 @@ import 'package:foodies/utils/constants.dart';
 import 'package:foodies/view/signupscreen.dart';
 import 'package:foodies/widgets/buttonwidget.dart';
 import 'package:foodies/widgets/customcntnrwidget.dart';
- // Import the view model
+// Import the view model
 
 class Signinscreen extends StatefulWidget {
   const Signinscreen({super.key});
@@ -20,7 +20,8 @@ class _SigninscreenState extends State<Signinscreen> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<SigninViewModel>(context); // Access the view model
+    final viewModel =
+        Provider.of<SigninViewModel>(context); // Access the view model
 
     return SafeArea(
       child: Scaffold(
@@ -119,28 +120,6 @@ class _SigninscreenState extends State<Signinscreen> {
                 const SizedBox(height: 20),
 
                 // Social Media Buttons
-                Customcntnrwidget(
-                  text: 'Continue with Facebook',
-                  imagepath: 'assets/images/facebook (2).png',
-                ),
-                const SizedBox(height: 15),
-                Customcntnrwidget(
-                  text: 'Continue with Google',
-                  imagepath: 'assets/images/google (1).png',
-                  ontap: () {
-                    // Call Google sign-in function
-                    viewModel.signinWithGoogle(context);
-                  },
-                ),
-                const SizedBox(height: 15),
-                Customcntnrwidget(
-                  text: 'Continue with Apple',
-                  imagepath: 'assets/images/apple-logo (1).png',
-                ),
-
-                const SizedBox(height: 30),
-
-                const SizedBox(height: 30),
 
                 // Create new account
                 TextButton(

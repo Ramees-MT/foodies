@@ -165,15 +165,12 @@ class _SignupscreenState extends State<Signupscreen> {
                     print(passwordController.text);
                     print(phoneNumberController.text);
 
-
-
                     // Call register function
                     context.read<Signupviewmodel>().register(
-                      email: emailController.text,
-                      username: nameController.text,
-                      password: passwordController.text,    
-                      phone: phoneNumberController.text,
-                          
+                          email: emailController.text,
+                          username: nameController.text,
+                          password: passwordController.text,
+                          phone: phoneNumberController.text,
                           context: context,
                         );
                   },
@@ -198,27 +195,7 @@ class _SignupscreenState extends State<Signupscreen> {
                 ),
                 const SizedBox(height: 30),
                 // Social Media Login Options
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconContainerWidget(
-                      imagePath: 'assets/images/facebook (2).png',
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        context
-                            .read<Signupviewmodel>()
-                            .Signupwithgoogle(context);
-                      },
-                      child: IconContainerWidget(
-                        imagePath: 'assets/images/google (1).png',
-                      ),
-                    ),
-                    IconContainerWidget(
-                      imagePath: 'assets/images/apple-logo (1).png',
-                    ),
-                  ],
-                ),
+
                 const SizedBox(height: 30),
                 // Sign in
                 TextButton(
