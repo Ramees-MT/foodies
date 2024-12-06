@@ -12,7 +12,7 @@ import 'package:foodies/view/profilescreen.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:upi_india/upi_app.dart';
+
 
 class CheckoutScreen extends StatefulWidget {
   final double totalAmount;
@@ -177,43 +177,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               title: "Credit Card",
               icon: Icons.credit_card,
               method: "Credit Card",
-              action: () {},
+              
             ),
             _buildPaymentOption(
               title: "Wallet",
               icon: Icons.account_balance_wallet,
               method: "Wallet",
-              action: () {},
+             
             ),
             _buildPaymentOption(
               title: "Gpay",
               image: 'assets/images/gpay.jpg',
               method: "UPI",
-              action: () async {
-                await context
-                    .read<Checkoutviewmodel>()
-                    .initiateTransaction(UpiApp.googlePay);
-              },
+              
             ),
             _buildPaymentOption(
               title: "Phonepe",
               image: 'assets/images/phonepe.jpg',
               method: "UPI",
-              action: () async {
-                await context
-                    .read<Checkoutviewmodel>()
-                    .initiateTransaction(UpiApp.phonePe);
-              },
+              
             ),
             _buildPaymentOption(
               title: "paytm",
               image: 'assets/images/paytm.png',
               method: "UPI",
-              action: () async {
-                await context
-                    .read<Checkoutviewmodel>()
-                    .initiateTransaction(UpiApp.paytm);
-              },
+              
             ),
 
             Spacer(),
@@ -300,7 +288,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     IconData? icon,
     String? image,
     required String method,
-    required VoidCallback action,
+   
   }) {
     return ListTile(
       leading: Icon(icon, color: Colors.green),
@@ -312,10 +300,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         color: _selectedPaymentMethod == method ? Colors.green : Colors.white,
       ),
       onTap: () {
-        action();
-        setState(() {
-          _selectedPaymentMethod = method;
-        });
+       
       },
     );
   }

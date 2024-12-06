@@ -4,7 +4,7 @@ import 'package:foodies/firebase_options.dart';
 import 'package:foodies/routes/route_names.dart';
 import 'package:foodies/view-model/addcart_view_model.dart';
 import 'package:foodies/view-model/address_view_model.dart';
-import 'package:foodies/view-model/checkout_view_model.dart';
+// import 'package:foodies/view-model/checkout_view_model.dart';
 import 'package:foodies/view-model/details_view_model.dart';
 import 'package:foodies/view-model/home_view_model.dart';
 import 'package:foodies/view-model/order_view_model.dart';
@@ -35,7 +35,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AddressViewModel()),
         ChangeNotifierProvider(create: (context) => PlaceOrderViewModel()),
         ChangeNotifierProvider(create: (context) => Userviewmodel()),
-        ChangeNotifierProvider(create: (context) => Checkoutviewmodel()),
+        // ChangeNotifierProvider(create: (context) => Checkoutviewmodel()),
         ChangeNotifierProvider(create: (context) => ProfileViewModel()),
         // Add more providers here as needed
       ],
