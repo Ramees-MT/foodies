@@ -9,6 +9,7 @@ import 'package:foodies/view/addressscreen.dart';
 import 'package:foodies/view/bottomnavscreen.dart';
 import 'package:foodies/view/homescreen.dart';
 import 'package:foodies/view/profilescreen.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:upi_india/upi_app.dart';
@@ -194,9 +195,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     .initiateTransaction(UpiApp.googlePay);
               },
             ),
-             _buildPaymentOption(
+            _buildPaymentOption(
               title: "Phonepe",
-              image:'assets/images/phonepe.jpg' ,
+              image: 'assets/images/phonepe.jpg',
               method: "UPI",
               action: () async {
                 await context
@@ -204,9 +205,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     .initiateTransaction(UpiApp.phonePe);
               },
             ),
-             _buildPaymentOption(
+            _buildPaymentOption(
               title: "paytm",
-              image:'assets/images/paytm.png' ,
+              image: 'assets/images/paytm.png',
               method: "UPI",
               action: () async {
                 await context
@@ -238,7 +239,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text("Order Confirmed"),
+                        title: Column(
+                          children: [
+                            // Add the Lottie animation
+                            SizedBox(
+                              height: 100, // Adjust size as needed
+                              child: Lottie.asset(
+                                  'assets/images/Animation - 1733379627016.json',
+                                  
+                                  repeat: false),
+                            ),
+                            Text("Order Confirmed"),
+                          ],
+                        ),
                         content: Text(placeOrderViewModel.successMessage!),
                         actions: [
                           TextButton(
@@ -284,7 +297,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildPaymentOption({
     required String title,
-     IconData? icon,
+    IconData? icon,
     String? image,
     required String method,
     required VoidCallback action,

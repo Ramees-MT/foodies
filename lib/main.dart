@@ -8,6 +8,7 @@ import 'package:foodies/view-model/checkout_view_model.dart';
 import 'package:foodies/view-model/details_view_model.dart';
 import 'package:foodies/view-model/home_view_model.dart';
 import 'package:foodies/view-model/order_view_model.dart';
+import 'package:foodies/view-model/profile_view_model.dart';
 import 'package:foodies/view-model/search_view_model.dart';
 
 import 'package:foodies/view-model/signin_view_model.dart';
@@ -42,6 +43,8 @@ void main() async {
         ChangeNotifierProvider(create: (context) => PlaceOrderViewModel()),
         ChangeNotifierProvider(create: (context) => Userviewmodel()),
         ChangeNotifierProvider(create: (context) => Checkoutviewmodel()),
+        ChangeNotifierProvider(create: (context) => ProfileViewModel()),
+
 
 
         // Add more providers here as needed
