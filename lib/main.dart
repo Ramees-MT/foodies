@@ -10,16 +10,9 @@ import 'package:foodies/view-model/home_view_model.dart';
 import 'package:foodies/view-model/order_view_model.dart';
 import 'package:foodies/view-model/profile_view_model.dart';
 import 'package:foodies/view-model/search_view_model.dart';
-
 import 'package:foodies/view-model/signin_view_model.dart';
 import 'package:foodies/view-model/signup_view_model.dart';
 import 'package:foodies/view-model/user_view_model.dart';
-import 'package:foodies/view/cartscreen.dart';
-import 'package:foodies/view/checkoutscreen.dart';
-import 'package:foodies/view/orderscreen.dart';
-import 'package:foodies/view/signinscreen.dart';
-import 'package:foodies/view/signupscreen.dart';
-import 'package:foodies/view/splashscreen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -44,16 +37,28 @@ void main() async {
         ChangeNotifierProvider(create: (context) => Userviewmodel()),
         ChangeNotifierProvider(create: (context) => Checkoutviewmodel()),
         ChangeNotifierProvider(create: (context) => ProfileViewModel()),
-
-
-
         // Add more providers here as needed
       ],
-      child: MaterialApp(
-        onGenerateRoute: (settings) => AppRoutes.generateRoute(settings),
-        initialRoute:
-            user.logId != null ? AppRoutes.bottomnavpage : AppRoutes.splash,
-      ),
+      child: MyApp(user: user),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  final Userviewmodel user;
+
+  const MyApp({Key? key, required this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      onGenerateRoute: (settings) => AppRoutes.generateRoute(settings),
+      initialRoute:
+          user.logId != null ? AppRoutes.bottomnavpage : AppRoutes.splash,
+      theme: ThemeData(
+        primarySwatch: Colors.green, // Customize the theme as needed
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+    );
+  }
 }
